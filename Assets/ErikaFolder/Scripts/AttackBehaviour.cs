@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Sockets;
 using UnityEngine;
 
 public class AttackBehaviour : GenericBehaviour
@@ -14,6 +15,12 @@ public class AttackBehaviour : GenericBehaviour
     private int attackBool;
     private bool attack = false;
 
+    [SerializeField]
+    private GameObject _particleAttack;
+
+    [SerializeField]
+    private GameObject _socket;
+    
     void Start()
     {
         attackBool = Animator.StringToHash("Attack");
@@ -35,8 +42,8 @@ public class AttackBehaviour : GenericBehaviour
             // Player is Attacking
             if (attack)
             {
-                // Register this behaviour.
                 behaviourManager.RegisterBehaviour(this.behaviourCode);
+                StartCoroutine(ParticleAttackRoutine());
             }
             else
             {
@@ -73,5 +80,10 @@ public class AttackBehaviour : GenericBehaviour
         }
     }
 
-
+    IEnumerator ParticleAttackRoutine()
+    {
+        yield return new WaitForSeconds(0.25f);
+        GameObject obj = Instantiate(_particleAttack);
+        obj.transform.position = _socket.transform.position;    
+    }
 }
