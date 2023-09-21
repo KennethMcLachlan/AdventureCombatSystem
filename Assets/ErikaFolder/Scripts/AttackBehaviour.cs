@@ -14,18 +14,27 @@ public class AttackBehaviour : GenericBehaviour
 
     private int attackBool;
     private bool attack = false;
+    private bool _isAttacking = false;
 
-    [SerializeField]
-    private GameObject _particleAttack;
+    public GameObject particleAttack = null;
 
-    [SerializeField]
-    private GameObject _socket;
-    
+    public GameObject socket = null;
+
+    public float createTime1 = 0.1f;
+    public float createTime2 = 0.1f;
+    public float createTime3 = 0.1f;
+
+    public float attackTime1 = 0.8f;
+    public float attackTime2 = 0.5f;
+    public float attackTime3 = 1.0f;
+
     void Start()
     {
         attackBool = Animator.StringToHash("Attack");
 
         behaviourManager.SubscribeBehaviour(this);
+
+        _isAttacking = false;
     }
 
     void Update()
@@ -69,7 +78,7 @@ public class AttackBehaviour : GenericBehaviour
     {
         AttackManagement(behaviourManager.GetH, behaviourManager.GetV);
     }
-    void AttackManagement(float horizontal, float vertical)
+    private void AttackManagement(float horizontal, float vertical)
     {
         if (behaviourManager.GetAnim.GetCurrentAnimatorStateInfo(0).normalizedTime > 1 &&
             !behaviourManager.GetAnim.IsInTransition(0))
@@ -82,8 +91,42 @@ public class AttackBehaviour : GenericBehaviour
 
     IEnumerator ParticleAttackRoutine()
     {
-        yield return new WaitForSeconds(0.25f);
-        GameObject obj = Instantiate(_particleAttack);
-        obj.transform.position = _socket.transform.position;    
+        if (_isAttacking == false)
+        {
+            _isAttacking = true;
+
+            yield return new WaitForSeconds(createTime1);
+            GameObject particle1 = CreateParticleEffect();
+            yield return new WaitForSeconds(attackTime1);
+            MoveParticleEffect(particle1);
+
+            yield return new WaitForSeconds(createTime2);
+            GameObject particle2 = CreateParticleEffect();
+            yield return new WaitForSeconds(attackTime2);
+            MoveParticleEffect(particle2);
+
+            yield return new WaitForSeconds(createTime3);
+            GameObject particle3 = CreateParticleEffect();
+            yield return new WaitForSeconds(attackTime3);
+            MoveParticleEffect(particle3);
+
+            _isAttacking = false;
+        }
+
+    }
+
+    GameObject CreateParticleEffect()
+    {
+        GameObject obj = Instantiate(particleAttack);
+        obj.transform.position = socket.transform.position;
+        //obj.transform.parent = socket.transform;
+        return obj;
+    }
+
+    void MoveParticleEffect (GameObject obj)
+    {
+        obj.GetComponent<ProjectileMovement>().enabled = true;
+        //obj.transform.parent = null;
+        obj.transform.localRotation = this.transform.localRotation;
     }
 }
